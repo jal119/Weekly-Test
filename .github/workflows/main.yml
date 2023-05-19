@@ -18,10 +18,13 @@ jobs:
 
     - name: Update or Create Weekly Release Branch
       run: |
+        set +e
         BRANCH_NAME=$(date -d 'next thursday' +%Y-%m-%d)
         git fetch origin release/weekly-release-S$BRANCH_NAME:release/weekly-release-S$BRANCH_NAME
+        FETCH_EXIT_CODE=$?
+        set -e
 
-        if [ $? -eq 0 ]; then
+        if [ $FETCH_EXIT_CODE -eq 0 ]; then
           echo "Updating release/weekly-release-S$BRANCH_NAME branch"
           git checkout release/weekly-release-S$BRANCH_NAME
           git rebase main
