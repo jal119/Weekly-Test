@@ -1,0 +1,33 @@
+name: Weekly Release Automation
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  update-weekly-release:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      with:
+        ref: 'main'
+        fetch-depth: 0
+
+    - name: Update or Create Weekly Release Branch
+      run: |
+        BRANCH_NAME=$(date -d 'next thursday' +%Y-%m-%d)
+        git fetch origin release/weekly-release-S$BRANCH_NAME:release/weekly-release-S$BRANCH_NAME
+
+        if [ $? -eq 0 ]; then
+          echo "Updating release/weekly-release-S$BRANCH_NAME branch"
+          git checkout release/weekly-release-S$BRANCH_NAME
+          git rebase main
+        else
+          echo "Creating release/weekly-release-S$BRANCH_NAME branch"
+          git checkout -b release/weekly-release-S$BRANCH_NAME
+        fi
+
+        git push -f origin release/weekly-release-S$BRANCH_NAME
